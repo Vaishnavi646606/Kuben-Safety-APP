@@ -1,0 +1,1934 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KUBEN SAFETY - PV Case Processing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #fff7e6;
+      --accent: #ffb347;
+      --accent-dark: #ff9800;
+      --accent-soft: #ffe0b2;
+      --text: #333;
+      --card: #ffffff;
+      --border: #e0d3c2;
+      --danger: #c62828;
+    }
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .center-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      max-width: 960px;
+      width: 100%;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+      color: #bf360c;
+    }
+    .title-main {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="date"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: white;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    }
+    .btn.secondary {
+      background: #faf3e0;
+      color: #bf360c;
+      box-shadow: none;
+      border: 1px solid var(--border);
+    }
+    .btn.small {
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      border-radius: 999px;
+    }
+    .btn + .btn {
+      margin-left: 8px;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px 16px;
+      margin-bottom: 12px;
+    }
+    .field {
+      margin-bottom: 8px;
+    }
+    .error {
+      color: var(--danger);
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #ffe0b2, #ffcc80);
+      font-weight: 600;
+    }
+    .top-bar span.right {
+      font-style: italic;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      border: 1px solid transparent;
+    }
+    .tab.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-dark);
+      color: #bf360c;
+      font-weight: 600;
+    }
+    .section {
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #fffaf2;
+      border: 1px solid var(--border);
+    }
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #e65100;
+    }
+    .actions-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .bottom-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      font-size: 0.75rem;
+      margin-left: 8px;
+    }
+    .status-pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      margin-left: 6px;
+      border: 1px solid var(--border);
+    }
+    .status-open { background:#e8f5e9; }
+    .status-locked { background:#fff3e0; }
+    .status-closed { background:#ffebee; }
+    .hidden { display:none !important; }
+    .flex-between {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+    }
+    .narrative-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 800px) {
+      .narrative-layout {
+        grid-template-columns: 1fr;
+      }
+      .actions-bar {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+      }
+    }
+    .small-input-row {
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-bottom:4px;
+      flex-wrap:wrap;
+    }
+    table {
+      width:100%;
+      border-collapse: collapse;
+      font-size:0.8rem;
+      margin-top:4px;
+    }
+    th, td {
+      border:1px solid var(--border);
+      padding:4px;
+      text-align:left;
+    }
+    th {
+      background:#ffe9c9;
+    }
+    .link-btn {
+      background:none;
+      border:none;
+      padding:0;
+      margin:0;
+      color:#1976d2;
+      text-decoration:underline;
+      cursor:pointer;
+      font-size:0.8rem;
+    }
+    .small-note {
+      font-size:0.75rem;
+      color:#666;
+    }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// Simple in-browser "database" using localStorage
+const STORAGE_KEY = 'kuben_safety_cases_v1';
+const USERS_KEY = 'kuben_safety_users_v1';
+
+// seed default admin user if not present
+function seedAdmin() {
+  const existing = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+  const hasAdmin = existing.some(u => u.username === 'PB8008');
+  if (!hasAdmin) {
+    existing.push({
+      username: 'PB8008',
+      password: 'KB@1909',
+      role: 'admin'
+    });
+    localStorage.setItem(USERS_KEY, JSON.stringify(existing));
+  }
+}
+seedAdmin();
+
+function getUsers() {
+  return JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+}
+function saveUsers(users) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+function getCases() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+}
+function saveCases(cases) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cases));
+}
+
+// sample MedDRA codes
+const MEDDRA_CODES = [
+  '10019211 - Headache',
+  '10028395 - Nausea',
+  '10013946 - Dizziness',
+  '10012378 - Diarrhoea',
+  '10033425 - Rash',
+  '10017947 - Fatigue',
+  '10018767 - Fever',
+  '10000081 - Abdominal pain',
+  '10042864 - Vomiting',
+  '10007541 - Chest pain',
+  '10034842 - Shortness of breath',
+  '10020772 - Hypertension',
+  '10002034 - Anaemia',
+  '10029505 - Neutropenia',
+  '10055798 - COVID-19',
+  '10021972 - Injection site pain',
+  '10018865 - Flushing',
+  '10016256 - Embolism',
+  '10034565 - Seizure',
+  '10034623 - Shock',
+  '10061244 - Myalgia',
+  '10030064 - Pain in extremity',
+  '10027199 - Migraine',
+  '10003372 - Arthralgia',
+  '10016288 - Erythema',
+  '10037175 - Thrombocytopenia',
+  '10017642 - Eye irritation',
+  '10065718 - Anaphylactic reaction',
+  '10012735 - Drug hypersensitivity',
+  '10065748 - Off label use'
+];
+
+// simple lab units list
+const LAB_UNITS = [
+  'Haemoglobin (g/dL)',
+  'WBC count (/µL)',
+  'Platelets (/µL)',
+  'Serum creatinine (mg/dL)',
+  'Blood urea (mg/dL)',
+  'ALT (U/L)',
+  'AST (U/L)',
+  'ALP (U/L)',
+  'Total bilirubin (mg/dL)',
+  'Random blood sugar (mg/dL)',
+  'Fasting blood sugar (mg/dL)',
+  'HbA1c (%)',
+  'Sodium (mmol/L)',
+  'Potassium (mmol/L)',
+  'Calcium (mg/dL)',
+  'CRP (mg/L)',
+  'ESR (mm/hr)',
+  'Troponin I (ng/mL)',
+  'INR',
+  'D-dimer (ng/mL)',
+  'LDH (U/L)',
+  'Serum ferritin (ng/mL)',
+  'Total cholesterol (mg/dL)',
+  'HDL (mg/dL)',
+  'LDL (mg/dL)',
+  'Triglycerides (mg/dL)',
+  'Urine protein',
+  'Urine sugar',
+  'pH',
+  'Others'
+];
+
+let currentUser = null;
+let currentView = 'login'; // login | dashboard | create | search | case | users
+let currentCaseId = null;
+let currentCaseTab = 'GENERAL';
+
+const appEl = document.getElementById('app');
+
+function render() {
+  if (!currentUser && currentView !== 'login') {
+    currentView = 'login';
+  }
+  if (currentView === 'login') renderLogin();
+  else if (currentView === 'dashboard') renderDashboard();
+  else if (currentView === 'create') renderCreateCase();
+  else if (currentView === 'search') renderSearchCase();
+  else if (currentView === 'case') renderCaseDetail();
+  else if (currentView === 'users') renderUserManagement();
+}
+
+// LOGIN
+function renderLogin() {
+  appEl.innerHTML = `
+    <div class="center-wrapper">
+      <div class="card" style="max-width:420px;">
+        <h1 class="title-main">KUBEN SAFETY</h1>
+        <p style="text-align:center;margin-top:-12px;margin-bottom:18px;">PV Case Processing Portal</p>
+        <div class="field">
+          <label for="login-username">Username</label>
+          <input type="text" id="login-username" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" autocomplete="current-password">
+        </div>
+        <div id="login-error" class="error"></div>
+        <div style="margin-top:16px;text-align:right;">
+          <button class="btn" onclick="handleLogin()">Login</button>
+        </div>
+        <p class="small-note" style="margin-top:16px;">
+          For demo/teaching only. Data is stored in your browser using localStorage.
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function handleLogin() {
+  const u = document.getElementById('login-username').value.trim();
+  const p = document.getElementById('login-password').value.trim();
+  const users = getUsers();
+  const match = users.find(us => us.username === u && us.password === p);
+  const errEl = document.getElementById('login-error');
+  if (!match) {
+    errEl.textContent = 'Invalid username or password.';
+    return;
+  }
+  errEl.textContent = '';
+  currentUser = { username: match.username, role: match.role };
+  currentView = 'dashboard';
+  render();
+}
+
+function logout() {
+  currentUser = null;
+  currentCaseId = null;
+  currentView = 'login';
+  render();
+}
+
+// DASHBOARD
+function renderDashboard() {
+  appEl.innerHTML = `
+    <div class="center-wrapper">
+      <div class="card">
+        <div class="top-bar">
+          <span>KUBEN SAFETY</span>
+          <span class="right">Welcome CASE PROCESSOR (${currentUser.username})</span>
+        </div>
+        <div class="tabs">
+          <button class="tab" onclick="gotoCreate()">Book / Create New Case</button>
+          <button class="tab" onclick="gotoSearch()">Search Existing Case</button>
+          ${currentUser.role === 'admin' ? '<button class="tab" onclick="gotoUsers()">User Management</button>' : ''}
+        </div>
+        <p>Select an option above to begin.</p>
+        <div class="bottom-bar">
+          <button class="btn secondary" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function gotoCreate() { currentView = 'create'; render(); }
+function gotoSearch() { currentView = 'search'; render(); }
+function gotoUsers() { currentView = 'users'; render(); }
+
+// CREATE CASE
+let createErrors = {};
+
+function renderCreateCase() {
+  const err = createErrors;
+  appEl.innerHTML = `
+    <div class="center-wrapper">
+      <div class="card">
+        <div class="top-bar">
+          <span>KUBEN SAFETY</span>
+          <span class="right">Welcome CASE PROCESSOR (${currentUser.username})</span>
+        </div>
+        <div class="tabs">
+          <button class="tab active">Book / Create New Case</button>
+          <button class="tab" onclick="gotoSearch()">Search Existing Case</button>
+          ${currentUser.role === 'admin' ? '<button class="tab" onclick="gotoUsers()">User Management</button>' : ''}
+        </div>
+
+        <div class="section">
+          <div class="section-title">General</div>
+          <div class="field-row">
+            <div class="field">
+              <label>Initial Kuben receipt date</label>
+              <input type="date" id="gen-kuben-date">
+              ${err['gen-kuben-date'] ? `<div class="error">${err['gen-kuben-date']}</div>` : ''}
+            </div>
+            <div class="field">
+              <label>Initial central receipt date</label>
+              <input type="date" id="gen-central-date">
+              ${err['gen-central-date'] ? `<div class="error">${err['gen-central-date']}</div>` : ''}
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Country of occurrence (2-letter code preferred e.g. US, IN)</label>
+              <input type="text" id="gen-country">
+              ${err['gen-country'] ? `<div class="error">${err['gen-country']}</div>` : ''}
+            </div>
+            <div class="field">
+              <label>Report type</label>
+              <input type="text" id="gen-report-type" placeholder="e.g. Initial, Follow-up">
+              ${err['gen-report-type'] ? `<div class="error">${err['gen-report-type']}</div>` : ''}
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Reporter</div>
+          <div class="field-row">
+            <div class="field">
+              <label>Salutation</label>
+              <input type="text" id="rep-salutation" placeholder="Dr, Mr, Ms">
+            </div>
+            <div class="field">
+              <label>First name</label>
+              <input type="text" id="rep-first">
+              ${err['rep-first'] ? `<div class="error">${err['rep-first']}</div>` : ''}
+            </div>
+            <div class="field">
+              <label>Last name</label>
+              <input type="text" id="rep-last">
+              ${err['rep-last'] ? `<div class="error">${err['rep-last']}</div>` : ''}
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Suffix</label>
+              <input type="text" id="rep-suffix">
+            </div>
+            <div class="field">
+              <label>Country</label>
+              <input type="text" id="rep-country">
+            </div>
+            <div class="field">
+              <label>State</label>
+              <input type="text" id="rep-state">
+            </div>
+            <div class="field">
+              <label>City</label>
+              <input type="text" id="rep-city">
+            </div>
+            <div class="field">
+              <label>Postal code</label>
+              <input type="text" id="rep-postal">
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Patient</div>
+          <div class="field-row">
+            <div class="field">
+              <label>First name</label>
+              <input type="text" id="pat-first">
+              ${err['pat-first'] ? `<div class="error">${err['pat-first']}</div>` : ''}
+            </div>
+            <div class="field">
+              <label>Last name</label>
+              <input type="text" id="pat-last">
+              ${err['pat-last'] ? `<div class="error">${err['pat-last']}</div>` : ''}
+            </div>
+            <div class="field">
+              <label>DOB</label>
+              <input type="date" id="pat-dob">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Age</label>
+              <input type="number" id="pat-age" min="0">
+            </div>
+            <div class="field">
+              <label>Age units</label>
+              <select id="pat-age-unit">
+                <option value="">Select</option>
+                <option value="Years">Years</option>
+                <option value="Months">Months</option>
+                <option value="Days">Days</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Gender at birth</label>
+              <select id="pat-gender" onchange="togglePregnancyField()">
+                <option value="">Select</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+              ${err['pat-gender'] ? `<div class="error">${err['pat-gender']}</div>` : ''}
+            </div>
+            <div class="field" id="pregnancy-field" style="display:none;">
+              <label>Pregnant</label>
+              <div class="small-input-row">
+                <label><input type="radio" name="pat-preg" value="Yes"> Yes</label>
+                <label><input type="radio" name="pat-preg" value="No"> No</label>
+              </div>
+            </div>
+          </div>
+</div>
+
+        <div class="section">
+          <div class="section-title">Adverse Event</div>
+          <div class="field">
+            <label>Adverse event (description)</label>
+            <textarea id="ae-description"></textarea>
+            ${err['ae-description'] ? `<div class="error">${err['ae-description']}</div>` : ''}
+          </div>
+          <div class="field">
+            <label>Seriousness criteria</label>
+            <div class="small-input-row">
+              ${['Death','Hospitalization','Congenital anomaly','Intervention required','Life threatening','Disability','Other'].map(s=>`
+                <label><input type="checkbox" name="ae-seriousness" value="${s}"> ${s}</label>
+              `).join('')}
+            </div>
+          </div>
+      <div class="field">
+        <label>Case seriousness (move from Patient)</label>
+        <div class="small-input-row">
+          <label><input type="radio" name="ae-case-serious" value="Serious"> Serious</label>
+          <label><input type="radio" name="ae-case-serious" value="Non-serious"> Non-serious</label>
+        </div>
+      </div>
+    
+        </div>
+
+        <div class="section">
+          <div class="section-title">Product</div>
+          <div class="field-row">
+            <div class="field">
+              <label>Product name (suspect)</label>
+              <input type="text" id="prod-name">
+              ${err['prod-name'] ? `<div class="error">${err['prod-name']}</div>` : ''}
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Concomitant / treatment drug details (optional)</label>
+              <textarea id="prod-concomitant" placeholder="You can describe additional drugs here for now."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:right;margin-top:12px;">
+          <button class="btn secondary" onclick="resetCreateForm()">Clear</button>
+          <button class="btn" onclick="handleBookCase()">BOOK CASE</button>
+        </div>
+
+        <div class="bottom-bar">
+          <button class="btn secondary" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function togglePregnancyField() {
+  const gender = document.getElementById('pat-gender').value;
+  const preg = document.getElementById('pregnancy-field');
+  if (gender === 'Female') preg.style.display = 'block';
+  else preg.style.display = 'none';
+}
+
+function resetCreateForm() {
+  createErrors = {};
+  gotoCreate();
+}
+
+function handleBookCase() {
+  createErrors = {};
+  function val(id, key, required) {
+    const el = document.getElementById(id);
+    if (!el) return '';
+    const v = el.value.trim();
+    if (required && !v) createErrors[id] = 'Required';
+    return v;
+  }
+  const gen_kuben = val('gen-kuben-date','gen-kuben-date',true);
+  const gen_central = val('gen-central-date','gen-central-date',true);
+  const gen_country = val('gen-country','gen-country',true);
+  const gen_report = val('gen-report-type','gen-report-type',true);
+  const rep_first = val('rep-first','rep-first',true);
+  const rep_last = val('rep-last','rep-last',true);
+  const pat_first = val('pat-first','pat-first',true);
+  const pat_last = val('pat-last','pat-last',true);
+  const pat_gender = val('pat-gender','pat-gender',true);
+  const ae_desc = val('ae-description','ae-description',true);
+  const prod_name = val('prod-name','prod-name',true);
+
+  // seriousness radio
+  const seriousRadio = document.querySelector('input[name="ae-case-serious"]:checked');
+  if (!seriousRadio) createErrors['ae-case-serious'] = 'Select serious or non-serious';
+
+  if (Object.keys(createErrors).length > 0) {
+    // re-render with errors
+    renderCreateCase();
+    // highlight global message
+    alert('Some required data are missing in General, Patient, Adverse Event or Product. Please check red messages.');
+    return;
+  }
+
+  // build case object
+  const ae_serious_list = Array.from(document.querySelectorAll('input[name="ae-seriousness"]:checked')).map(c => c.value);
+
+  // pregnancy
+  let preg = '';
+  const pregEl = document.querySelector('input[name="pat-preg"]:checked');
+  if (pregEl) preg = pregEl.value;
+
+  const cases = getCases();
+  // ID format AA0000001
+  const prefix = (gen_country || 'XX').substring(0,2).toUpperCase();
+  let maxNum = 0;
+  cases.forEach(c => {
+    if (c.id.startsWith(prefix)) {
+      const num = parseInt(c.id.slice(2),10);
+      if (!isNaN(num) && num>maxNum) maxNum = num;
+    }
+  });
+  const newNum = maxNum + 1;
+  const id = prefix + String(newNum).padStart(7,'0');
+
+  const now = new Date().toISOString();
+
+  const newCase = {
+    id,
+    createdAt: now,
+    status: 'OPEN', // OPEN | LOCKED | CLOSED
+    general: {
+      kubenDate: gen_kuben,
+      centralDate: gen_central,
+      country: gen_country,
+      reportType: gen_report,
+      classification: '', // to fill later
+    },
+    reporter: {
+      salutation: document.getElementById('rep-salutation').value.trim(),
+      first: rep_first,
+      last: rep_last,
+      suffix: document.getElementById('rep-suffix').value.trim(),
+      country: document.getElementById('rep-country').value.trim(),
+      state: document.getElementById('rep-state').value.trim(),
+      city: document.getElementById('rep-city').value.trim(),
+      postal: document.getElementById('rep-postal').value.trim(),
+    },
+    patient: {
+      first: pat_first,
+      last: pat_last,
+      dob: document.getElementById('pat-dob').value,
+      age: document.getElementById('pat-age').value,
+      ageUnit: document.getElementById('pat-age-unit').value,
+      gender: pat_gender,
+      pregnant: preg,
+      seriousness: seriousRadio ? seriousRadio.value : '',
+      medicalHistory: [],
+      labData: []
+    },
+    products: [{
+      type: 'Suspect',
+      productName: prod_name,
+      genericName: '',
+      companyDrugCode: '',
+      obtainCountry: '',
+      drugCode: '',
+      manufacturer: '',
+      formulation: '',
+      authCountry: '',
+      concentration: '',
+      concentrationUnit: '',
+      pregnancyExposure: '',
+      indications: [],
+      dosageRegimens: [],
+      details: {
+        actionTaken: '',
+        dechallenge: '',
+        rechallenge: '',
+        flags: {
+          abuse:false, offLabel:false, medError:false,
+          overdose:false, counterfeit:false, misuse:false
+        }
+      }
+    }],
+    concomitantText: document.getElementById('prod-concomitant').value.trim(),
+    events: [{
+      descriptionReported: ae_desc,
+      descriptionToBeCoded: '',
+      meddra: {
+        soc: '', hlt: '', hlgt: '', pt: '', llt: ''
+      },
+      seriousnessCriteria: ae_serious_list,
+      medicallyConfirmed: '',
+      reporterHighlighted: '',
+      onsetDate: '',
+      outcomeDate: '',
+      severity: '',
+      outcome: '',
+      country: gen_country,
+      erVisit: false,
+      physicianVisit: false,
+      causality: {
+        reporter: '',
+        company: '',
+        listedness: ''
+      }
+    }],
+    narrative: {
+      main: '',
+      local: '',
+      sponsor: '',
+      followUp: '',
+      psur: ''
+    },
+    activities: {
+      contactLog: '',
+      actionItems: '',
+      routingComments: ''
+    },
+    sourceDocs: {
+      files: [], // {name, url}
+      fileNotes: [], // {date, text}
+      references: [] // {id, notes}
+    },
+    regulatory: {}
+  };
+
+  cases.push(newCase);
+  saveCases(cases);
+
+  alert('Case ID BOOKED: ' + id);
+  // after OK, go back to dashboard
+  currentView = 'dashboard';
+  render();
+}
+
+// SEARCH CASE
+function renderSearchCase() {
+  appEl.innerHTML = `
+    <div class="center-wrapper">
+      <div class="card">
+        <div class="top-bar">
+          <span>KUBEN SAFETY</span>
+          <span class="right">Welcome CASE PROCESSOR (${currentUser.username})</span>
+        </div>
+        <div class="tabs">
+          <button class="tab" onclick="gotoCreate()">Book / Create New Case</button>
+          <button class="tab active">Search Existing Case</button>
+          ${currentUser.role === 'admin' ? '<button class="tab" onclick="gotoUsers()">User Management</button>' : ''}
+        </div>
+        <div class="section">
+          <div class="section-title">Search by Case ID</div>
+          <div class="field-row">
+            <div class="field">
+              <label>Case ID</label>
+              <input type="text" id="search-id" placeholder="e.g. US0000001">
+            </div>
+          </div>
+          <button class="btn" onclick="handleSearchCase()">Search</button>
+          <div id="search-error" class="error" style="margin-top:8px;"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">Recent cases</div>
+          <div id="recent-cases"></div>
+        </div>
+        <div class="bottom-bar">
+          <button class="btn secondary" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const recentDiv = document.getElementById('recent-cases');
+  const cases = getCases().slice().reverse().slice(0,10);
+  if (cases.length === 0) {
+    recentDiv.innerHTML = '<p class="small-note">No cases yet.</p>';
+  } else {
+    recentDiv.innerHTML = '<ul style="list-style:none;padding-left:0;margin:0;">' +
+      cases.map(c => `
+        <li style="margin-bottom:4px;">
+          <button class="link-btn" onclick="openCase('${c.id}')">${c.id}</button>
+          <span class="small-note">(${c.general.country || 'N/A'}, ${c.general.reportType || 'Type N/A'})</span>
+          <span class="status-pill status-${c.status.toLowerCase()}">${c.status}</span>
+        </li>
+      `).join('') + '</ul>';
+  }
+}
+
+function handleSearchCase() {
+  const id = document.getElementById('search-id').value.trim();
+  const cases = getCases();
+  const found = cases.find(c => c.id === id);
+  const err = document.getElementById('search-error');
+  if (!found) {
+    err.textContent = 'Case not found.';
+    return;
+  }
+  err.textContent = '';
+  openCase(id);
+}
+
+function openCase(id) {
+  currentCaseId = id;
+  currentCaseTab = 'GENERAL';
+  currentView = 'case';
+  render();
+}
+
+// CASE DETAIL
+function renderCaseDetail() {
+  const cases = getCases();
+  const c = cases.find(x => x.id === currentCaseId);
+  if (!c) {
+    alert('Case not found.');
+    currentView = 'dashboard';
+    render();
+    return;
+  }
+  const locked = c.status === 'LOCKED' || c.status === 'CLOSED';
+
+  appEl.innerHTML = `
+    <div class="center-wrapper">
+      <div class="card">
+        <div class="top-bar">
+          <span>KUBEN SAFETY – Case ${c.id}</span>
+          <span class="right">
+            Status:
+            <span class="status-pill status-${c.status.toLowerCase()}">${c.status}</span>
+          </span>
+        </div>
+        <div class="actions-bar">
+          <button class="btn small" onclick="saveCase('${c.id}')">Save Case</button>
+          <button class="btn small secondary" onclick="toggleLockCase('${c.id}')">${c.status === 'LOCKED' ? 'Unlock Case' : 'Lock Case'}</button>
+          <button class="btn small secondary" onclick="closeCase('${c.id}')">Close Case</button>
+        </div>
+        <div class="tabs">
+          ${['GENERAL','PATIENT','PRODUCTS','EVENTS','NARRATIVE','ACTIVITIES','SOURCE DOCUMENTS','REGULATORY REPORTS'].map(tab => `
+            <button class="tab ${currentCaseTab===tab?'active':''}" onclick="switchCaseTab('${tab}')">${tab}</button>
+          `).join('')}
+        </div>
+        <div id="case-tab-content"></div>
+        <div class="bottom-bar">
+          <button class="btn secondary" onclick="currentView='dashboard';render();">Home</button>
+          <button class="btn secondary" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // now fill tab content
+  const container = document.getElementById('case-tab-content');
+  const disAttr = locked ? 'disabled' : '';
+
+  if (currentCaseTab === 'GENERAL') {
+    container.innerHTML = `
+      <div class="section">
+        <div class="section-title">General Info</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Initial Kuben receipt date</label>
+            <input type="date" id="case-gen-kuben" value="${c.general.kubenDate || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>Initial central receipt date</label>
+            <input type="date" id="case-gen-central" value="${c.general.centralDate || ''}" ${disAttr}>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Country of occurrence</label>
+            <input type="text" id="case-gen-country" value="${c.general.country || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>Report type</label>
+            <input type="text" id="case-gen-report" value="${c.general.reportType || ''}" ${disAttr}>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Classification</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Case classification</label>
+            <select id="case-classification" ${disAttr}>
+              <option value=""></option>
+              <option value="SPONTANEOUS" ${c.general.classification==='SPONTANEOUS'?'selected':''}>SPONTANEOUS</option>
+              <option value="PMS" ${c.general.classification==='PMS'?'selected':''}>PMS</option>
+              <option value="CT" ${c.general.classification==='CT'?'selected':''}>CT</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Reporter</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Salutation</label>
+            <input type="text" id="case-rep-salutation" value="${c.reporter.salutation || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>First name</label>
+            <input type="text" id="case-rep-first" value="${c.reporter.first || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>Last name</label>
+            <input type="text" id="case-rep-last" value="${c.reporter.last || ''}" ${disAttr}>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Suffix</label>
+            <input type="text" id="case-rep-suffix" value="${c.reporter.suffix || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <input type="text" id="case-rep-country" value="${c.reporter.country || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>State</label>
+            <input type="text" id="case-rep-state" value="${c.reporter.state || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>City</label>
+            <input type="text" id="case-rep-city" value="${c.reporter.city || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>Postal code</label>
+            <input type="text" id="case-rep-postal" value="${c.reporter.postal || ''}" ${disAttr}>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (currentCaseTab === 'PATIENT') {
+    // build medical history table
+    let mhRows = '';
+    c.patient.medicalHistory.forEach((mh, idx)=>{
+      mhRows += `<tr>
+        <td><input type="date" data-mh="${idx}" data-field="start" value="${mh.start || ''}" ${disAttr}></td>
+        <td><input type="date" data-mh="${idx}" data-field="stop" value="${mh.stop || ''}" ${disAttr}></td>
+        <td>
+          <select data-mh="${idx}" data-field="ongoing" ${disAttr}>
+            <option value=""></option>
+            <option value="Yes" ${mh.ongoing==='Yes'?'selected':''}>Yes</option>
+            <option value="No" ${mh.ongoing==='No'?'selected':''}>No</option>
+            <option value="Unk" ${mh.ongoing==='Unk'?'selected':''}>Unk</option>
+          </select>
+        </td>
+        <td><input type="text" data-mh="${idx}" data-field="verbatim" value="${mh.verbatim || ''}" ${disAttr}></td>
+        <td>
+          <select data-mh="${idx}" data-field="meddra" ${disAttr}>
+            <option value=""></option>
+            ${MEDDRA_CODES.map(code=>`<option value="${code}" ${mh.meddra===code?'selected':''}>${code}</option>`).join('')}
+          </select>
+        </td>
+        <td><input type="text" data-mh="${idx}" data-field="comment" value="${mh.comment || ''}" ${disAttr}></td>
+        <td>${!locked?`<button class="link-btn" onclick="removeMedicalHistory(${idx})">Delete</button>`:''}</td>
+      </tr>`;
+    });
+    let labRows = '';
+    c.patient.labData.forEach((lb, idx)=>{
+      labRows += `<tr>
+        <td><input type="date" data-lb="${idx}" data-field="start" value="${lb.start || ''}" ${disAttr}></td>
+        <td><input type="date" data-lb="${idx}" data-field="stop" value="${lb.stop || ''}" ${disAttr}></td>
+        <td>
+          <select data-lb="${idx}" data-field="unit" ${disAttr}>
+            <option value=""></option>
+            ${LAB_UNITS.map(code=>`<option value="${code}" ${lb.unit===code?'selected':''}>${code}</option>`).join('')}
+          </select>
+        </td>
+        <td><input type="text" data-lb="${idx}" data-field="verbatim" value="${lb.verbatim || ''}" ${disAttr}></td>
+        <td>
+          <select data-lb="${idx}" data-field="meddra" ${disAttr}>
+            <option value=""></option>
+            ${MEDDRA_CODES.map(code=>`<option value="${code}" ${lb.meddra===code?'selected':''}>${code}</option>`).join('')}
+          </select>
+        </td>
+        <td><input type="text" data-lb="${idx}" data-field="comment" value="${lb.comment || ''}" ${disAttr}></td>
+        <td>${!locked?`<button class="link-btn" onclick="removeLabData(${idx})">Delete</button>`:''}</td>
+      </tr>`;
+    });
+
+    container.innerHTML = `
+      <div class="section">
+        <div class="section-title">Patient Information</div>
+        <div class="field-row">
+          <div class="field">
+            <label>First name</label>
+            <input type="text" id="case-pat-first" value="${c.patient.first || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>Last name</label>
+            <input type="text" id="case-pat-last" value="${c.patient.last || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>DOB</label>
+            <input type="date" id="case-pat-dob" value="${c.patient.dob || ''}" ${disAttr}>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Age</label>
+            <input type="number" id="case-pat-age" value="${c.patient.age || ''}" ${disAttr}>
+          </div>
+          <div class="field">
+            <label>Age units</label>
+            <select id="case-pat-age-unit" ${disAttr}>
+              <option value=""></option>
+              <option value="Years" ${c.patient.ageUnit==='Years'?'selected':''}>Years</option>
+              <option value="Months" ${c.patient.ageUnit==='Months'?'selected':''}>Months</option>
+              <option value="Days" ${c.patient.ageUnit==='Days'?'selected':''}>Days</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Gender at birth</label>
+            <select id="case-pat-gender" ${disAttr}>
+              <option value=""></option>
+              <option value="Female" ${c.patient.gender==='Female'?'selected':''}>Female</option>
+              <option value="Male" ${c.patient.gender==='Male'?'selected':''}>Male</option>
+              <option value="Other" ${c.patient.gender==='Other'?'selected':''}>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Pregnant</label>
+            <select id="case-pat-preg" ${disAttr}>
+              <option value=""></option>
+              <option value="Yes" ${c.patient.pregnant==='Yes'?'selected':''}>Yes</option>
+              <option value="No" ${c.patient.pregnant==='No'?'selected':''}>No</option>
+            </select>
+            <div class="small-note">Use only if gender is Female.</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Case seriousness</label>
+            <select id="case-ae-case-serious" ${disAttr}>
+              <option value=""></option>
+              <option value="Serious" ${c.patient.seriousness==='Serious'?'selected':''}>Serious</option>
+              <option value="Non-serious" ${c.patient.seriousness==='Non-serious'?'selected':''}>Non-serious</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Medical history</div>
+        <div class="small-note">DD-MM-YYYY represented using date picker.</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Start date</th>
+              <th>Stop date</th>
+              <th>Ongoing</th>
+              <th>Verbatim</th>
+              <th>MedDRA code</th>
+              <th>Comment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="mh-body">
+            ${mhRows || '<tr><td colspan="7" class="small-note">No medical history yet.</td></tr>'}
+          </tbody>
+        </table>
+        ${!locked?'<button class="btn small" onclick="addMedicalHistory()">Add medical history</button>':''}
+      </div>
+
+      <div class="section">
+        <div class="section-title">Lab data</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Start date</th>
+              <th>Stop date</th>
+              <th>Unit</th>
+              <th>Verbatim</th>
+              <th>MedDRA code</th>
+              <th>Comment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="lb-body">
+            ${labRows || '<tr><td colspan="7" class="small-note">No lab data yet.</td></tr>'}
+          </tbody>
+        </table>
+        ${!locked?'<button class="btn small" onclick="addLabData()">Add lab data</button>':''}
+      </div>
+    `;
+  } else if (currentCaseTab === 'PRODUCTS') {
+    // For simplicity, show first suspect + text for concomitant
+    const p = c.products[0] || {};
+    const dis = disAttr;
+    container.innerHTML = `
+      <div class="section">
+        <div class="section-title">Suspect product</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Product name</label>
+            <input type="text" id="prod-name" value="${p.productName || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>Generic name</label>
+            <input type="text" id="prod-generic" value="${p.genericName || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>Company drug code</label>
+            <input type="text" id="prod-company-code" value="${p.companyDrugCode || ''}" ${dis}>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Obtain drug country</label>
+            <input type="text" id="prod-obtain-country" value="${p.obtainCountry || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>Drug code</label>
+            <input type="text" id="prod-drug-code" value="${p.drugCode || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>Manufacturer</label>
+            <input type="text" id="prod-manufacturer" value="${p.manufacturer || ''}" ${dis}>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Formulation</label>
+            <input type="text" id="prod-formulation" value="${p.formulation || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>Drug authorization country</label>
+            <input type="text" id="prod-auth-country" value="${p.authCountry || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>Concentration and units</label>
+            <input type="text" id="prod-concentration" value="${p.concentration || ''}" ${dis}>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Pregnancy exposure drug</label>
+            <input type="text" id="prod-preg-exposure" value="${p.pregnancyExposure || ''}" ${dis}>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Product indications (up to 5)</div>
+        <div class="small-note">For demo, use lines separated by ";" to indicate multiple indications.</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Reported indication(s)</label>
+            <textarea id="prod-indications-reported" ${dis}>${(p.indications || []).map(i=>i.reported).join('; ')}</textarea>
+          </div>
+          <div class="field">
+            <label>Coded indication(s)</label>
+            <textarea id="prod-indications-coded" ${dis}>${(p.indications || []).map(i=>i.coded).join('; ')}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Dosage regimen (up to 5)</div>
+        <div class="small-note">For simplicity in demo, capture as free text.</div>
+        <textarea id="prod-dosage-regimens" ${dis}>${(p.dosageRegimens || []).map(r=>r.freeText).join('\\n')}</textarea>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Product details</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Action taken</label>
+            <select id="prod-action" ${dis}>
+              <option value=""></option>
+              ${['Increased','Decreased','Withdrawn','Interrupted','No change','Not applicable'].map(x=>`
+                <option value="${x}" ${p.details && p.details.actionTaken===x?'selected':''}>${x}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label>Dechallenge</label>
+            <select id="prod-dechallenge" ${dis}>
+              <option value=""></option>
+              ${['Unk','Pos','Neg','N/A'].map(x=>`
+                <option value="${x}" ${p.details && p.details.dechallenge===x?'selected':''}>${x}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label>Rechallenge</label>
+            <select id="prod-rechallenge" ${dis}>
+              <option value=""></option>
+              ${['Unk','Pos','Neg','N/A'].map(x=>`
+                <option value="${x}" ${p.details && p.details.rechallenge===x?'selected':''}>${x}</option>
+              `).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Additional information on drug</label>
+          <div class="small-input-row">
+            ${[
+              ['abuse','Abuse'],
+              ['offLabel','Off label use'],
+              ['medError','Medication error'],
+              ['overdose','Overdose'],
+              ['counterfeit','Counterfeit'],
+              ['misuse','Misuse']
+            ].map(([key,label])=>`
+              <label><input type="checkbox" id="flag-${key}" ${p.details && p.details.flags && p.details.flags[key]?'checked':''} ${dis}> ${label}</label>
+            `).join('')}
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">Concomitant / treatment drug</div>
+          <textarea id="prod-concomitant-text" ${dis}>${c.concomitantText || ''}</textarea>
+        </div>
+      </div>
+    `;
+  } else if (currentCaseTab === 'EVENTS') {
+    const e = c.events[0] || {};
+    const dis = disAttr;
+    container.innerHTML = `
+      <div class="section">
+        <div class="section-title">Event information</div>
+        <div class="field">
+          <label>Description as reported</label>
+          <textarea id="ev-desc-reported" ${dis}>${e.descriptionReported || ''}</textarea>
+        </div>
+        <div class="field">
+          <label>Description to be coded</label>
+          <textarea id="ev-desc-coded" ${dis}>${e.descriptionToBeCoded || ''}</textarea>
+        </div>
+        <div class="field">
+          <label>Event coding (simplified MedDRA)</label>
+          <select id="ev-meddra-pt" ${dis}>
+            <option value=""></option>
+            ${MEDDRA_CODES.map(code=>`
+              <option value="${code}" ${e.meddra && e.meddra.pt===code?'selected':''}>${code}</option>
+            `).join('')}
+          </select>
+          <div class="small-note">Selecting PT auto-fills MedDRA tree fields for demo.</div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>System organ class</label>
+            <input type="text" id="ev-soc" value="${e.meddra && e.meddra.soc || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>High level group term</label>
+            <input type="text" id="ev-hlgt" value="${e.meddra && e.meddra.hlgt || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>High level term</label>
+            <input type="text" id="ev-hlt" value="${e.meddra && e.meddra.hlt || ''}" ${dis}>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Preferred term</label>
+            <input type="text" id="ev-pt" value="${e.meddra && e.meddra.pt || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>Lower level term</label>
+            <input type="text" id="ev-llt" value="${e.meddra && e.meddra.llt || ''}" ${dis}>
+          </div>
+        </div>
+        <div class="field">
+          <label>Seriousness criteria</label>
+          <div class="small-input-row">
+            ${['Death','Hospitalization','Disability','Life threatening','Clinically significant / intervention required','Congenital anomaly','Other'].map(s=>`
+              <label><input type="checkbox" name="ev-serious" value="${s}" ${e.seriousnessCriteria && e.seriousnessCriteria.includes(s)?'checked':''} ${dis}> ${s}</label>
+            `).join('')}
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Medically confirmed</label>
+            <select id="ev-med-conf" ${dis}>
+              <option value=""></option>
+              <option value="Yes" ${e.medicallyConfirmed==='Yes'?'selected':''}>Yes</option>
+              <option value="No" ${e.medicallyConfirmed==='No'?'selected':''}>No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Term highlighted by reporter</label>
+            <select id="ev-term-highlight" ${dis}>
+              <option value=""></option>
+              <option value="Yes" ${e.reporterHighlighted==='Yes'?'selected':''}>Yes</option>
+              <option value="No" ${e.reporterHighlighted==='No'?'selected':''}>No</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Onset date</label>
+            <input type="date" id="ev-onset" value="${e.onsetDate || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>Outcome date</label>
+            <input type="date" id="ev-outcome-date" value="${e.outcomeDate || ''}" ${dis}>
+          </div>
+          <div class="field">
+            <label>Severity</label>
+            <select id="ev-severity" ${dis}>
+              <option value=""></option>
+              <option value="Mild (Grade 1)" ${e.severity==='Mild (Grade 1)'?'selected':''}>Mild - Grade 1</option>
+              <option value="Moderate (Grade 2)" ${e.severity==='Moderate (Grade 2)'?'selected':''}>Moderate - Grade 2</option>
+              <option value="Severe (Grade 3)" ${e.severity==='Severe (Grade 3)'?'selected':''}>Severe - Grade 3</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Outcome of event</label>
+            <select id="ev-outcome" ${dis}>
+              <option value=""></option>
+              ${['Fatal','Not applicable','Not recovered / not resolved','Not reported','Recovered / resolved','Recovering / resolving','Resolved with sequelae','Unknown'].map(x=>`
+                <option value="${x}" ${e.outcome===x?'selected':''}>${x}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label>Country in which event occurred</label>
+            <input type="text" id="ev-country" value="${e.country || ''}" ${dis}>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Emergency room visit</label>
+            <select id="ev-er" ${dis}>
+              <option value=""></option>
+              <option value="Yes" ${e.erVisit?'selected':''}>Yes</option>
+              <option value="No" ${e.erVisit===false?'selected':''}>No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Physician office visit</label>
+            <select id="ev-phys" ${dis}>
+              <option value=""></option>
+              <option value="Yes" ${e.physicianVisit?'selected':''}>Yes</option>
+              <option value="No" ${e.physicianVisit===false?'selected':''}>No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Causality</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Reporter causality</label>
+            <select id="ev-causality-reporter" ${dis}>
+              <option value=""></option>
+              ${['Almost certain','No','Not applicable','Not related','Not reported','Possible','Probable','Unknown','Unlikely','Yes'].map(x=>`
+                <option value="${x}" ${e.causality && e.causality.reporter===x?'selected':''}>${x}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label>Company causality</label>
+            <select id="ev-causality-company" ${dis}>
+              <option value=""></option>
+              ${['Almost certain','No','Not applicable','Not related','Not reported','Possible','Probable','Unknown','Unlikely','Yes'].map(x=>`
+                <option value="${x}" ${e.causality && e.causality.company===x?'selected':''}>${x}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label>Listedness</label>
+            <select id="ev-causality-listed" ${dis}>
+              <option value=""></option>
+              <option value="Listed" ${e.causality && e.causality.listedness==='Listed'?'selected':''}>Listed</option>
+              <option value="Unlisted" ${e.causality && e.causality.listedness==='Unlisted'?'selected':''}>Unlisted</option>
+              <option value="Unk" ${e.causality && e.causality.listedness==='Unk'?'selected':''}>Unk</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (currentCaseTab === 'NARRATIVE') {
+    const n = c.narrative;
+    const dis = disAttr;
+    container.innerHTML = `
+      <div class="section">
+        <div class="section-title">Narratives & comments</div>
+        <div class="narrative-layout">
+          <div>
+            <label>Narrative (max ~1000 characters)</label>
+            <textarea id="nar-main" maxlength="1000" style="min-height:220px;" ${dis}>${n.main || ''}</textarea>
+          </div>
+          <div>
+            <div class="field">
+              <label>Local language narrative</label>
+              <textarea id="nar-local" maxlength="1000" ${dis}>${n.local || ''}</textarea>
+            </div>
+            <div class="field">
+              <label>Sponsor comment (max 100)</label>
+              <textarea id="nar-sponsor" maxlength="100" ${dis}>${n.sponsor || ''}</textarea>
+            </div>
+            <div class="field">
+              <label>Follow-up summary</label>
+              <textarea id="nar-follow" maxlength="500" ${dis}>${n.followUp || ''}</textarea>
+            </div>
+            <div class="field">
+              <label>PSUR comment</label>
+              <textarea id="nar-psur" maxlength="500" ${dis}>${n.psur || ''}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (currentCaseTab === 'ACTIVITIES') {
+    const a = c.activities;
+    const dis = disAttr;
+    container.innerHTML = `
+      <div class="section">
+        <div class="section-title">Activities</div>
+        <div class="field">
+          <label>Contact log</label>
+          <textarea id="act-contact" ${dis}>${a.contactLog || ''}</textarea>
+        </div>
+        <div class="field">
+          <label>Action items</label>
+          <textarea id="act-actions" ${dis}>${a.actionItems || ''}</textarea>
+        </div>
+        <div class="field">
+          <label>Routing comments</label>
+          <textarea id="act-routing" ${dis}>${a.routingComments || ''}</textarea>
+        </div>
+        <div class="small-note">Case lock / unlock / close controlled by buttons above.</div>
+      </div>
+    `;
+  } else if (currentCaseTab === 'SOURCE DOCUMENTS') {
+    const sd = c.sourceDocs;
+    const dis = disAttr;
+    const filesList = (sd.files || []).map((f,idx)=>`
+      <li>
+        <button class="link-btn" onclick="window.open('${f.url}','_blank')">${f.name}</button>
+        ${!locked?`<button class="link-btn" onclick="removeSourceFile(${idx})">Delete</button>`:''}
+      </li>
+    `).join('') || '<li class="small-note">No source documents yet.</li>';
+    const notesList = (sd.fileNotes || []).map((n,idx)=>`
+      <li>${n.date} – ${n.text} ${!locked?`<button class="link-btn" onclick="removeFileNote(${idx})">Delete</button>`:''}</li>
+    `).join('') || '<li class="small-note">No file notes yet.</li>';
+    const refsList = (sd.references || []).map((r,idx)=>`
+      <li>${r.id}: ${r.notes} ${!locked?`<button class="link-btn" onclick="removeCaseReference(${idx})">Delete</button>`:''}</li>
+    `).join('') || '<li class="small-note">No case references yet.</li>';
+    container.innerHTML = `
+      <div class="section">
+        <div class="section-title">Source documents (PDF)</div>
+        <div class="field">
+          <label>Upload PDF from local storage</label>
+          <input type="file" id="src-file" accept="application/pdf" ${dis}>
+          ${!locked?'<button class="btn small" onclick="uploadSourceFile()">Upload</button>':''}
+          <div class="small-note">Files are stored only for current browser session (demo purpose).</div>
+        </div>
+        <ul>${filesList}</ul>
+      </div>
+      <div class="section">
+        <div class="section-title">File notes</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Date</label>
+            <input type="date" id="file-note-date" ${dis}>
+          </div>
+          <div class="field">
+            <label>Note</label>
+            <input type="text" id="file-note-text" ${dis}>
+          </div>
+        </div>
+        ${!locked?'<button class="btn small" onclick="addFileNote()">Add file note</button>':''}
+        <ul>${notesList}</ul>
+      </div>
+      <div class="section">
+        <div class="section-title">Case references</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Reference ID</label>
+            <input type="text" id="ref-id" ${dis}>
+          </div>
+          <div class="field">
+            <label>Notes</label>
+            <input type="text" id="ref-notes" ${dis}>
+          </div>
+        </div>
+        ${!locked?'<button class="btn small" onclick="addCaseReference()">Add reference</button>':''}
+        <ul>${refsList}</ul>
+      </div>
+    `;
+  } else if (currentCaseTab === 'REGULATORY REPORTS') {
+    container.innerHTML = `
+      <div class="section">
+        <div class="section-title">Regulatory reports</div>
+        <p class="small-note">For teaching/demo: you can describe regulatory submissions, timelines, and reporting decisions here.</p>
+        <textarea id="reg-reports" style="min-height:220px;" ${disAttr}>${c.regulatory.text || ''}</textarea>
+      </div>
+    `;
+  }
+}
+
+// TAB switching
+function switchCaseTab(tab) {
+  currentCaseTab = tab;
+  renderCaseDetail();
+}
+
+// helpers for medical history & labs
+function addMedicalHistory() {
+  const cases = getCases();
+  const c = cases.find(x=>x.id===currentCaseId);
+  c.patient.medicalHistory.push({start:'',stop:'',ongoing:'',verbatim:'',meddra:'',comment:''});
+  saveCases(cases);
+  renderCaseDetail();
+}
+function removeMedicalHistory(idx) {
+  const cases = getCases();
+  const c = cases.find(x=>x.id===currentCaseId);
+  c.patient.medicalHistory.splice(idx,1);
+  saveCases(cases);
+  renderCaseDetail();
+}
+function addLabData() {
+  const cases = getCases();
+  const c = cases.find(x=>x.id===currentCaseId);
+  c.patient.labData.push({start:'',stop:'',unit:'',verbatim:'',meddra:'',comment:''});
+  saveCases(cases);
+  renderCaseDetail();
+}
+function removeLabData(idx) {
+  const cases = getCases();
+  const c = cases.find(x=>x.id===currentCaseId);
+  c.patient.labData.splice(idx,1);
+  saveCases(cases);
+  renderCaseDetail();
+}
+
+// SOURCE DOC helpers
+function uploadSourceFile() {
+  const input = document.getElementById('src-file');
+  if (!input || !input.files || !input.files[0]) {
+    alert('Select a PDF file first.');
+    return;
+  }
+  const file = input.files[0];
+  if (file.type !== 'application/pdf') {
+    alert('Please upload a PDF file.');
+    return;
+  }
+  const url = URL.createObjectURL(file);
+  const cases = getCases();
+  const c = cases.find(x=>x.id===currentCaseId);
+  c.sourceDocs.files = c.sourceDocs.files || [];
+  c.sourceDocs.files.push({name:file.name,url});
+  saveCases(cases);
+  renderCaseDetail();
+}
+function removeSourceFile(idx) {
+  const cases = getCases();
+  const c = cases.find(x=>x.id===currentCaseId);
+  c.sourceDocs.files.splice(idx,1);
+  saveCases(cases);
+  renderCaseDetail();
+}
+function addFileNote() {
+  const date = document.getElementById('file-note-date').value;
+  const text = document.getElementById('file-note-text').value.trim();
+  if (!date || !text) { alert('Enter date and note'); return; }
+  const cases = getCases();
+  const c = cases.find(x=>x.id===currentCaseId);
+  c.sourceDocs.fileNotes = c.sourceDocs.fileNotes || [];
+  c.sourceDocs.fileNotes.push({date,text});
+  saveCases(cases);
+  renderCaseDetail();
+}
+function removeFileNote(idx) {
+  const cases = getCases();
+  const c = cases.find(x=>x.id===currentCaseId);
+  c.sourceDocs.fileNotes.splice(idx,1);
+  saveCases(cases);
+  renderCaseDetail();
+}
+function addCaseReference() {
+  const id = document.getElementById('ref-id').value.trim();
+  const notes = document.getElementById('ref-notes').value.trim();
+  if (!id) { alert('Enter reference ID'); return; }
+  const cases = getCases();
+  const c = cases.find(x=>x.id===currentCaseId);
+  c.sourceDocs.references = c.sourceDocs.references || [];
+  c.sourceDocs.references.push({id,notes});
+  saveCases(cases);
+  renderCaseDetail();
+}
+function removeCaseReference(idx) {
+  const cases = getCases();
+  const c = cases.find(x=>x.id===currentCaseId);
+  c.sourceDocs.references.splice(idx,1);
+  saveCases(cases);
+  renderCaseDetail();
+}
+
+// SAVE / LOCK
+function saveCase(id) {
+  const cases = getCases();
+  const c = cases.find(x=>x.id===id);
+  if (!c) return;
+  if (c.status === 'LOCKED' || c.status === 'CLOSED') {
+    alert('Case is locked/closed – cannot edit.');
+    return;
+  }
+  if (currentCaseTab === 'GENERAL') {
+    c.general.kubenDate = document.getElementById('case-gen-kuben').value;
+    c.general.centralDate = document.getElementById('case-gen-central').value;
+    c.general.country = document.getElementById('case-gen-country').value.trim();
+    c.general.reportType = document.getElementById('case-gen-report').value.trim();
+    c.general.classification = document.getElementById('case-classification').value;
+    c.reporter.salutation = document.getElementById('case-rep-salutation').value.trim();
+    c.reporter.first = document.getElementById('case-rep-first').value.trim();
+    c.reporter.last = document.getElementById('case-rep-last').value.trim();
+    c.reporter.suffix = document.getElementById('case-rep-suffix').value.trim();
+    c.reporter.country = document.getElementById('case-rep-country').value.trim();
+    c.reporter.state = document.getElementById('case-rep-state').value.trim();
+    c.reporter.city = document.getElementById('case-rep-city').value.trim();
+    c.reporter.postal = document.getElementById('case-rep-postal').value.trim();
+  } else if (currentCaseTab === 'PATIENT') {
+    c.patient.first = document.getElementById('case-pat-first').value.trim();
+    c.patient.last = document.getElementById('case-pat-last').value.trim();
+    c.patient.dob = document.getElementById('case-pat-dob').value;
+    c.patient.age = document.getElementById('case-pat-age').value;
+    c.patient.ageUnit = document.getElementById('case-pat-age-unit').value;
+    c.patient.gender = document.getElementById('case-pat-gender').value;
+    c.patient.pregnant = document.getElementById('case-pat-preg').value;
+    c.patient.seriousness = document.getElementById('case-ae-case-serious').value;
+
+    // collect medical history values
+    const mhInputs = document.querySelectorAll('[data-mh]');
+    const mhMap = {};
+    mhInputs.forEach(el=>{
+      const idx = el.getAttribute('data-mh');
+      const field = el.getAttribute('data-field');
+      mhMap[idx] = mhMap[idx] || {};
+      mhMap[idx][field] = el.value;
+    });
+    c.patient.medicalHistory = Object.keys(mhMap).map(k=>mhMap[k]);
+
+    const lbInputs = document.querySelectorAll('[data-lb]');
+    const lbMap = {};
+    lbInputs.forEach(el=>{
+      const idx = el.getAttribute('data-lb');
+      const field = el.getAttribute('data-field');
+      lbMap[idx] = lbMap[idx] || {};
+      lbMap[idx][field] = el.value;
+    });
+    c.patient.labData = Object.keys(lbMap).map(k=>lbMap[k]);
+  } else if (currentCaseTab === 'PRODUCTS') {
+    const p = c.products[0];
+    p.productName = document.getElementById('prod-name').value.trim();
+    p.genericName = document.getElementById('prod-generic').value.trim();
+    p.companyDrugCode = document.getElementById('prod-company-code').value.trim();
+    p.obtainCountry = document.getElementById('prod-obtain-country').value.trim();
+    p.drugCode = document.getElementById('prod-drug-code').value.trim();
+    p.manufacturer = document.getElementById('prod-manufacturer').value.trim();
+    p.formulation = document.getElementById('prod-formulation').value.trim();
+    p.authCountry = document.getElementById('prod-auth-country').value.trim();
+    p.concentration = document.getElementById('prod-concentration').value.trim();
+    p.pregnancyExposure = document.getElementById('prod-preg-exposure').value.trim();
+
+    const repInd = document.getElementById('prod-indications-reported').value.split(';').map(s=>s.trim()).filter(Boolean);
+    const codedInd = document.getElementById('prod-indications-coded').value.split(';').map(s=>s.trim()).filter(Boolean);
+    p.indications = [];
+    const maxLen = Math.max(repInd.length, codedInd.length);
+    for (let i=0;i<maxLen;i++) {
+      p.indications.push({reported:repInd[i]||'',coded:codedInd[i]||''});
+    }
+
+    const regLines = document.getElementById('prod-dosage-regimens').value.split('\n').map(s=>s.trim()).filter(Boolean);
+    p.dosageRegimens = regLines.map(line=>({freeText:line}));
+
+    p.details.actionTaken = document.getElementById('prod-action').value;
+    p.details.dechallenge = document.getElementById('prod-dechallenge').value;
+    p.details.rechallenge = document.getElementById('prod-rechallenge').value;
+    p.details.flags = {
+      abuse: document.getElementById('flag-abuse').checked,
+      offLabel: document.getElementById('flag-offLabel').checked,
+      medError: document.getElementById('flag-medError').checked,
+      overdose: document.getElementById('flag-overdose').checked,
+      counterfeit: document.getElementById('flag-counterfeit').checked,
+      misuse: document.getElementById('flag-misuse').checked
+    };
+    c.concomitantText = document.getElementById('prod-concomitant-text').value.trim();
+  } else if (currentCaseTab === 'EVENTS') {
+    const e = c.events[0];
+    e.descriptionReported = document.getElementById('ev-desc-reported').value.trim();
+    e.descriptionToBeCoded = document.getElementById('ev-desc-coded').value.trim();
+    const meddraPt = document.getElementById('ev-meddra-pt').value;
+    if (!e.meddra) e.meddra = {};
+    e.meddra.pt = meddraPt;
+    e.meddra.soc = document.getElementById('ev-soc').value.trim();
+    e.meddra.hlgt = document.getElementById('ev-hlgt').value.trim();
+    e.meddra.hlt = document.getElementById('ev-hlt').value.trim();
+    e.meddra.llt = document.getElementById('ev-llt').value.trim();
+    e.seriousnessCriteria = Array.from(document.querySelectorAll('input[name="ev-serious"]:checked')).map(i=>i.value);
+    e.medicallyConfirmed = document.getElementById('ev-med-conf').value;
+    e.reporterHighlighted = document.getElementById('ev-term-highlight').value;
+    e.onsetDate = document.getElementById('ev-onset').value;
+    e.outcomeDate = document.getElementById('ev-outcome-date').value;
+    e.severity = document.getElementById('ev-severity').value;
+    e.outcome = document.getElementById('ev-outcome').value;
+    e.country = document.getElementById('ev-country').value.trim();
+    const er = document.getElementById('ev-er').value;
+    e.erVisit = er === 'Yes' ? true : (er === 'No' ? false : null);
+    const phys = document.getElementById('ev-phys').value;
+    e.physicianVisit = phys === 'Yes' ? true : (phys === 'No' ? false : null);
+    e.causality = e.causality || {};
+    e.causality.reporter = document.getElementById('ev-causality-reporter').value;
+    e.causality.company = document.getElementById('ev-causality-company').value;
+    e.causality.listedness = document.getElementById('ev-causality-listed').value;
+  } else if (currentCaseTab === 'NARRATIVE') {
+    c.narrative.main = document.getElementById('nar-main').value;
+    c.narrative.local = document.getElementById('nar-local').value;
+    c.narrative.sponsor = document.getElementById('nar-sponsor').value;
+    c.narrative.followUp = document.getElementById('nar-follow').value;
+    c.narrative.psur = document.getElementById('nar-psur').value;
+  } else if (currentCaseTab === 'ACTIVITIES') {
+    c.activities.contactLog = document.getElementById('act-contact').value;
+    c.activities.actionItems = document.getElementById('act-actions').value;
+    c.activities.routingComments = document.getElementById('act-routing').value;
+  } else if (currentCaseTab === 'SOURCE DOCUMENTS') {
+    // notes & refs handled via helper functions already
+  } else if (currentCaseTab === 'REGULATORY REPORTS') {
+    c.regulatory.text = document.getElementById('reg-reports').value;
+  }
+
+  saveCases(cases);
+  alert('Case saved.');
+  renderCaseDetail();
+}
+
+function toggleLockCase(id) {
+  const cases = getCases();
+  const c = cases.find(x=>x.id===id);
+  if (!c) return;
+  if (c.status === 'LOCKED') c.status = 'OPEN';
+  else if (c.status === 'OPEN') c.status = 'LOCKED';
+  saveCases(cases);
+  renderCaseDetail();
+}
+
+function closeCase(id) {
+  const cases = getCases();
+  const c = cases.find(x=>x.id===id);
+  if (!c) return;
+  c.status = 'CLOSED';
+  saveCases(cases);
+  renderCaseDetail();
+}
+
+// USER MANAGEMENT (admin only)
+function renderUserManagement() {
+  const users = getUsers();
+  appEl.innerHTML = `
+    <div class="center-wrapper">
+      <div class="card">
+        <div class="top-bar">
+          <span>KUBEN SAFETY</span>
+          <span class="right">Admin: ${currentUser.username}</span>
+        </div>
+        <div class="tabs">
+          <button class="tab" onclick="gotoCreate()">Book / Create New Case</button>
+          <button class="tab" onclick="gotoSearch()">Search Existing Case</button>
+          <button class="tab active">User Management</button>
+        </div>
+        <div class="section">
+          <div class="section-title">Add new user</div>
+          <div class="field-row">
+            <div class="field">
+              <label>Username</label>
+              <input type="text" id="user-username">
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="text" id="user-password">
+            </div>
+            <div class="field">
+              <label>Role</label>
+              <select id="user-role">
+                <option value="processor">CASE PROCESSOR</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn small" onclick="addUser()">Add user</button>
+        </div>
+        <div class="section">
+          <div class="section-title">Existing users</div>
+          <table>
+            <thead>
+              <tr><th>Username</th><th>Role</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              ${users.map(u=>`
+                <tr>
+                  <td>${u.username}</td>
+                  <td>${u.role}</td>
+                  <td>
+                    ${u.username==='PB8008' ? '<span class="small-note">Default admin</span>' :
+                      `<button class="link-btn" onclick="deleteUser('${u.username}')">Delete</button>`}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <p class="small-note">Share the same application link with users; they can log in with their assigned credentials.</p>
+        </div>
+        <div class="bottom-bar">
+          <button class="btn secondary" onclick="currentView='dashboard';render();">Home</button>
+          <button class="btn secondary" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function addUser() {
+  const username = document.getElementById('user-username').value.trim();
+  const password = document.getElementById('user-password').value.trim();
+  const role = document.getElementById('user-role').value;
+  if (!username || !password) {
+    alert('Enter username and password');
+    return;
+  }
+  const users = getUsers();
+  if (users.some(u=>u.username===username)) {
+    alert('User already exists.');
+    return;
+  }
+  users.push({username,password,role});
+  saveUsers(users);
+  alert('User added.');
+  renderUserManagement();
+}
+
+function deleteUser(username) {
+  if (!confirm('Delete user ' + username + '?')) return;
+  const users = getUsers().filter(u=>u.username!==username);
+  saveUsers(users);
+  renderUserManagement();
+}
+
+// initial
+render();
+
+</script>
+</body>
+</html>
