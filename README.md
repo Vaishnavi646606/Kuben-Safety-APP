@@ -5,6 +5,7 @@ A lightweight, cloud-hosted Pharmacovigilance Case Processing App built for Kube
 🌐 Live Links
 
 🔹 Kuben Safety App: https://cases.kuben.in
+
 🔹 Kuben Academy Website: https://kuben.in
 
 📌 About the App
@@ -31,6 +32,7 @@ Clinical Research
 Drug Safety Operations
 
 👩‍💻 Developer
+
 Vaishnavi Shewale
 GitHub: https://github.com/Vaishnavi646606
 
